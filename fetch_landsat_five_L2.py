@@ -102,7 +102,8 @@ def maskL5sr(image):
     # Bits 2, 3, and 4, are cirrus, cloud  and cloudshadow, respectively.
     cloudsBitMask = 1 << 3
     cloudShadowBitMask = 1 << 4
-    # cirrusBitMask = 1 << 2
+    cirrusBitMask = 1 << 14  # bit one
+    cirrusBitMask2 = 1 << 15  # bit two, both have to be zero so cirrus value is 0 total
     waterBitMask = 1 << 7  # 1 means water
 
     # Get the pixel QA band.
@@ -112,7 +113,8 @@ def maskL5sr(image):
         qa.bitwiseAnd(cloudShadowBitMask)
         .eq(0)
         .And(qa.bitwiseAnd(cloudsBitMask).eq(0))  # want not high cloud confidence
-        # .And(qa.bitwiseAnd(cirrusBitMask).eq(0))
+        .And(qa.bitwiseAnd(cirrusBitMask).eq(0))
+        .And(qa.bitwiseAnd(cirrusBitMask2).eq(0))
         .And(qa.bitwiseAnd(waterBitMask).neq(0))  # keep water
         # tho question, if 1 is water, then why is this working if we are keeping it when it is zero(land)
     )
