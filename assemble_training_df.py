@@ -13,7 +13,7 @@ if len(sys.argv) < 2:
     print("Please specify the out directory.")
     exit(1)
 
-tif_dir = sys.argv[1]
+tif_dir = str(sys.argv[1])
 tif_paths = list(os.listdir(tif_dir))
 
 
@@ -134,6 +134,12 @@ for filename in tqdm(tif_paths[3:]):
     training_entries.append(current_training_entry)
 
 training_df = pd.DataFrame(training_entries)
+
+# first get just the dir name (handles forward slashes) then get basename
+stub = os.path.basename(os.path.dirname(tif_dir))
+
+csv_filepath = f"{stub}_training_data.csv"
+print("csv_filepath: ", csv_filepath)
 print("Training data: \n", training_df)
 
-training_df.to_csv(f"{os.path.basename(tif_dir)}_training_data.csv", index=False)
+training_df.to_csv(csv_filepath, index=False)
