@@ -33,6 +33,9 @@ points_shp = geopandas.read_file(
 adk_df = adk_df[adk_df["Permanent_"].isin(bounds_shp["Permanent_"])]
 adk_df = adk_df[adk_df["Permanent_"].isin(points_shp["Permanent_"])]
 
+# Drop nan DOCs
+adk_df = adk_df.dropna(axis=0, subset=(["doc"]))
+
 # unique lakes
 unique_lakes_ids = np.unique(adk_df["Permanent_"])
 
