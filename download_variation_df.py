@@ -7,38 +7,13 @@ import multiprocessing
 from tqdm import tqdm
 import fetch_landsat_five_L2
 import random
+import adk_data
 
 
+# Assemble download params
 def gen_all_lakes_all_dates_params(project, OUT_DIR, days_before_and_after_insitu):
-    df = pd.read_csv("lagoes_adk_modified.csv")
-
-    df["sampledate"] = pd.to_datetime(df["sampledate"], format=f"%m/%d/%y")
-    # df = df[df["sampledate"].dt.year <= 1986]
-
-    df["Permanent_"] = df["Permanent_"].astype(str)
-
-    # Filter data df to only contain lakes that are in shapefile dataset
-    adk_shp = geopandas.read_file(
-        os.path.join(
-            "adk-lakes-shapefiles",
-            "bounds",
-            "adk-lakes-gt.25km2-200m-bound-clean.qmd.shp",
-        )
-    )
-
-    df = df[df["Permanent_"].isin(adk_shp["Permanent_"])]
-
-    # unique lakes
-    unique_lakes_ids = np.unique(df["Permanent_"])
-
-    print("Number of unique lakes: ", len(unique_lakes_ids))
-
-    print("\nTen most frequent lakes:")
-    print(df["Permanent_"].value_counts().nlargest(5))
-
-    # Assemble download params
     all_params = []
-    for index, row in df.iterrows():
+    for index, row in adk_data.adk_df.iterrows():
         lake_permanent_id = row["Permanent_"]
 
         sample_date_YYYY_MM_DD = row["sampledate"].strftime(
