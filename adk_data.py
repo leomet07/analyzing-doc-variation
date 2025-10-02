@@ -4,6 +4,10 @@ import geopandas
 import os
 import matplotlib.pyplot as plt
 
+CHART_OUT_DIR = "charts"
+if not os.path.exists(CHART_OUT_DIR):
+    os.makedirs(CHART_OUT_DIR)
+
 adk_df = pd.read_csv("lagoes_adk_modified.csv")
 
 adk_df["sampledate"] = pd.to_datetime(adk_df["sampledate"], format=f"%m/%d/%y")
@@ -53,7 +57,7 @@ def plot_column_vs_column(
     ax=None,
 ):
     if not ax:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(8, 5))
 
     df = df.dropna(axis=0, subset=([xname, yname]))
 
@@ -85,31 +89,51 @@ def plot_line_of_best_fit_for_date_x(xs: pd.Series, ys: pd.Series, ax):
     ax.plot(xs, ys_pred, color="red")
 
 
+def save_fig(filename: str):
+    plt.tight_layout()
+
+    plt.savefig(
+        os.path.join(
+            CHART_OUT_DIR,
+            filename,
+        ),
+        bbox_inches="tight",
+        dpi=400,
+    )
+
+
 if __name__ == "__main__":
     print("Number of unique lakes: ", len(unique_lakes_ids))
 
     plot_column_vs_column(
         adk_df, "All data plot of", "sampledate", "doc", plot_line_of_best_fit=True
     )
+    save_fig("date_vs_doc_all.jpg")
 
     plot_column_vs_column(
         adk_df, "All data plot of", "sampledate", "chla", plot_line_of_best_fit=True
     )
+    save_fig("date_vs_chla_all.jpg")
+
     plot_column_vs_column(
         adk_df, "All data plot of", "sampledate", "secchi", plot_line_of_best_fit=True
     )
+    save_fig("date_vs_secchi_all.jpg")
+
     plot_column_vs_column(
         adk_df, "All data plot of", "sampledate", "colort", plot_line_of_best_fit=True
     )
+    save_fig("date_vs_colort_all.jpg")
 
     plot_column_vs_column(
         adk_df,
         "All data plot of",
         "area_ha",
         "doc",
-        "hA",
+        "hA, x-axis truncated at 500hA",
     )
     plt.xlim(0, 500)
+    save_fig("area_vs_doc.jpg")
 
     print("Most frequent lake names: ")
     most_frequent_lake_permanent_ids = (
@@ -118,13 +142,12 @@ if __name__ == "__main__":
         .nlargest(4)
         .index.to_list()
     )
-    docfig, docaxs = plt.subplots(2, 2)
-    chlafig, chlaaxs = plt.subplots(2, 2)
+
+    docfig, docaxs = plt.subplots(2, 2, figsize=(12, 8))
     for index in range(len(most_frequent_lake_permanent_ids)):
         pmid = most_frequent_lake_permanent_ids[index]
         this_lake_df = adk_df[adk_df["Permanent_"] == pmid]
         lake_name = this_lake_df["GNIS_Name"].iloc[0]
-        print(f"{lake_name} | Permanent ID: {pmid}")
 
         plot_column_vs_column(
             this_lake_df,
@@ -134,6 +157,13 @@ if __name__ == "__main__":
             plot_line_of_best_fit=True,
             ax=docaxs.flatten()[index],
         )
+    save_fig("date_vs_doc_subplots.jpg")
+
+    chlafig, chlaaxs = plt.subplots(2, 2, figsize=(12, 8))
+    for index in range(len(most_frequent_lake_permanent_ids)):
+        pmid = most_frequent_lake_permanent_ids[index]
+        this_lake_df = adk_df[adk_df["Permanent_"] == pmid]
+        lake_name = this_lake_df["GNIS_Name"].iloc[0]
         plot_column_vs_column(
             this_lake_df,
             f"{lake_name} plot of",
@@ -142,8 +172,7 @@ if __name__ == "__main__":
             plot_line_of_best_fit=True,
             ax=chlaaxs.flatten()[index],
         )
-    docfig.tight_layout()
-    chlafig.tight_layout()
+    save_fig("date_vs_chla_subplots.jpg")
 
     plt.tight_layout()
     plt.show()
