@@ -48,6 +48,8 @@ def get_bands_from_tif(tif_path):
         )
 
 
+adk_df = adk_data.adk_df.dropna(axis=0, subset=(["doc"]))
+
 training_entries = []
 
 for filename in tqdm(tif_paths[3:]):
@@ -67,9 +69,9 @@ for filename in tqdm(tif_paths[3:]):
         continue
 
     # matched doc
-    all_doc = adk_data.adk_df[
-        (adk_data.adk_df["Permanent_"] == permanent_id)
-        & (adk_data.adk_df["sampledate"] == closest_insitu_date)
+    all_doc = adk_df[
+        (adk_df["Permanent_"] == permanent_id)
+        & (adk_df["sampledate"] == closest_insitu_date)
     ]["doc"]
 
     try:

@@ -9,11 +9,13 @@ import fetch_landsat_five_L2
 import random
 import adk_data
 
+adk_df = adk_data.adk_df.dropna(axis=0, subset=(["doc"]))
+
 
 # Assemble download params
 def gen_all_lakes_all_dates_params(project, OUT_DIR, days_before_and_after_insitu):
     all_params = []
-    for index, row in adk_data.adk_df.iterrows():
+    for index, row in adk_df.iterrows():
         lake_permanent_id = row["Permanent_"]
 
         sample_date_YYYY_MM_DD = row["sampledate"].strftime(
